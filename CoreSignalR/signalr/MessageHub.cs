@@ -52,7 +52,7 @@ namespace CoreSignalRR.signalr
         ///日志记录
         private readonly ILogger<MessageHub> _logger;
 
-        private bool SetValue = true;//调试赋值此项设正
+        private bool SetValue = false;//调试赋值此项设正
         public MessageHub(ILogger<MessageHub> logger)
         {
             _logger = logger;
@@ -61,22 +61,26 @@ namespace CoreSignalRR.signalr
 
 
 
-            //if (StatusList.Count == 0)
-            //{
-            //    if (File.Exists("wwwroot/config/MessageStatusObj.txt"))
-            //        StatusList = JsonHelper.DeserializeJsonToList<Pf_Message_Obj>(File.ReadAllText("wwwroot/config/MessageStatusObj.txt"));
-
-            //}
-
-            if (SetValue)//调试用
+            if (StatusList.Count == 0)
             {
-                if (StatusList.Count == 10)
+                if (File.Exists("wwwroot/config/MessageStatusObj.txt"))
+                { StatusList = JsonHelper.DeserializeJsonToList<Pf_Message_Obj>(File.ReadAllText("wwwroot/config/MessageStatusObj.txt")); }
+                if(File.Exists("wwwroot/config/MessageQueueObj.txt"))
                 {
+                    QueueList = JsonHelper.DeserializeJsonToList<Pf_Message_Obj>(File.ReadAllText("wwwroot/config/MessageQueueObj.txt"));
+                }
 
-                    File.WriteAllText("wwwroot/config/MessageStatusObj.txt", JsonHelper.SerializeObject(StatusList));
-                    File.WriteAllText("wwwroot/config/MessageQueueObj.txt", JsonHelper.SerializeObject(QueueList));
-                }//预留赋值的方法
             }
+
+            //if (SetValue)//调试用
+            //{
+            //    if (StatusList.Count == 10)
+            //    {
+
+            //        File.WriteAllText("wwwroot/config/MessageStatusObj.txt", JsonHelper.SerializeObject(StatusList));
+            //        File.WriteAllText("wwwroot/config/MessageQueueObj.txt", JsonHelper.SerializeObject(QueueList));
+            //    }//预留赋值的方法
+            //}
         }
         #endregion
         #region 全局变量

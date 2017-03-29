@@ -25,12 +25,6 @@ namespace CoreSignalRR.Controllers
 
             return View();
         }
-        [EnableCors("AllowAll")]
-        public IActionResult Chat()
-        {
-           
-            return View();
-        }
 
         [EnableCors("AllowAll")]
         public IActionResult Error()
