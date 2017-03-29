@@ -1,0 +1,242 @@
+﻿@{
+    ViewData["Title"] = "车道代理";
+    //车道代理缓存
+}
+<!DOCTYPE html5>
+<html lang="eng">
+<head>
+    <meta charset="utf-8" />
+    <title>none</title>
+    <script src="http://oion935wi.bkt.clouddn.com/jquery-1.6.4.min.js"></script>
+    <script src="http://oion935wi.bkt.clouddn.com/jquery.signalR-2.2.1.min.js"></script>
+    @*<script src="Scripts/jquery.signalR-2.2.1.js"></script>*@
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    @*<script src="http://60.205.200.73:5000/signalr/hubs"></script>*@
+    <script src="http://139.199.225.84/signalr/hubs"></script>
+    @*<script src="http://localhost:5000/signalr/hubs"></script>*@
+    <style>
+        body {
+            background-image: url("http://ohe5u4k9s.bkt.clouddn.com/bg.jpg");
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        div {
+            border-radius: 5%;
+        }
+
+        #ChildDiv {
+            width: 50%;
+            height: 50px;
+        }
+
+        #MajiKo {
+            width: 50%;
+            height: 50%;
+            margin-left: 55%;
+        }
+
+        #TText {
+            width: 75%;
+            height: 75%;
+        }
+    </style>
+</head>
+<body>
+    @*<div class="span8">
+        <table class="table table-bordered" id="MessageStatus-Table">
+            <tr>
+                <td>消息类型</td>
+                <td>消息对象（对象）</td>
+            </tr>
+        </table>
+    </div>*@
+    <div class="span8">
+        <table class="table table-bordered" id="MessageContent-Table">
+            <tr>
+                <td>车道code</td>
+                <td>地区编号</td>
+                <td>城市区域编号</td>
+                <td>场站编号</td>
+                <td>车道号</td>
+                <td>车道类型</td>
+                <td>连接ID</td>
+                <td>更新时间</td>
+                <td>车道状态（对象）</td>
+            </tr>
+        </table>
+    </div>
+    @*<div class="span8">
+        <table class="table table-bordered" id="LaneStatus-Table">
+            <tr>
+                <td>当前状态</td>
+                <td>作业开始时间</td>
+                <td>作业结束时间</td>
+                <td>车牌号</td>
+                <td>ORC识别车牌号</td>
+                <td>RFID电子车牌号</td>
+                <td>地磅重量</td>
+                <td>起落杆状态</td>
+                <td>IC卡读卡号</td>
+                <td>进度条“车道就绪”</td>
+                <td>进度条“感应来车”</td>
+                <td>进度条“车牌读卡”</td>
+                <td>进度条“车牌识别”</td>
+                <td>进度条“箱号识别”</td>
+                <td>进度条“司机读卡”</td>
+                <td>进度条“箱体验残”</td>
+                <td>进度条“提交TOS”</td>
+                <td>进度条“TOS反馈”</td>
+                <td>进度条“打印小票”</td>
+                <td>进度条“抬杆放行”</td>
+                <td>验残次数</td>
+                <td>残损记录数</td>
+                <td>车头图片URL</td>
+                <td>前顶图片URL</td>
+                <td>后顶图片URL</td>
+                <td>左前图片URL</td>
+                <td>左后图片URL</td>
+                <td>右前图片URL</td>
+                <td>右后图片URL</td>
+                <td>左面箱体拼接图片URL</td>
+                <td>右面箱体拼接图片URL</td>
+                <td>顶面箱体拼接图片URL</td>
+                <td>集装箱列表（对象数组）</td>
+            </tr>
+        </table>
+    </div>
+    <div class="span8">
+        <table class="table table-bordered" id="Containers-Table">
+            <tr>
+                <td>位置</td>
+                <td>集装箱号</td>
+                <td>OCR识别集装箱号</td>
+                <td>ISO码</td>
+                <td>残损信息数组(对象数组)</td>
+            </tr>
+        </table>
+    </div>
+    <div class="span8">
+    <table class="table table-bordered" id="Damage-Table">
+        <tr>
+            <td>残损面</td>
+            <td>残损代码</td>
+            <td>残损等级</td>           
+        </tr>
+    </table>*@
+</div>
+
+
+    <script type="text/javascript">
+
+        $.connection.hub.start().done(function () {//与Hub服务器连接
+            alert("连接服务器成功");
+        });
+
+        var proxy = $.connection.messageHub; //连接到具体的Hub.
+
+        proxy.client.GetStatusList = function (datas) {
+            var lane_caches = JSON.parse(datas);
+
+            $("#MessageStatus-Table  tr:not(:first)").empty("");
+            $("#MessageContent-Table tr:not(:first)").empty("");
+            $("#LaneStatus-Table tr:not(:first)").empty("");
+            $("#Containers-Table tr:not(:first)").empty("");
+            $("#Damage-Table tr:not(:first)").empty(""); //清空列表缓存
+
+            for (var i = 0; i < lane_caches.length; i++) {
+
+                var messageContent = lane_caches[i];
+                $("#MessageContent-Table").append(
+                    "<tr><td>" + messageContent.lane_code
+                    + "</td><td>" + messageContent.country_code
+                    + "</td><td>" + messageContent.city_code
+                    + "</td><td>" + messageContent.terminal_code
+                    + "</td><td>" + messageContent.lane_name
+                    + "</td><td>" + messageContent.direction
+                    + "</td><td>" + messageContent.connection_id 
+                    + "</td><td>" + messageContent.update_time
+                    + "</td><td>" + messageContent.lane_status //实际为一个LaneStatus对象。
+                    + "</tr>"
+                )
+                //var LaneStatus = messageContent.LaneStatus;
+                //$("#LaneStatus-Table").append(
+                //    "<tr><td>" + LaneStatus.LaneType
+                //    + "</td><td>" + LaneStatus.StartTime
+                //    + "</td><td>" + LaneStatus.EndTime
+                //    + "</td><td>" + LaneStatus.TrunkNo
+                //    + "</td><td>" + LaneStatus.OcrTruckNo
+                //    + "</td><td>" + LaneStatus.RfidTruckNo
+                //    + "</td><td>" + LaneStatus.WeightBridge
+                //    + "</td><td>" + LaneStatus.Barrier
+                //    + "</td><td>" + LaneStatus.IcCardNo
+                //    + "</td><td>" + LaneStatus.LaneReady
+                //    + "</td><td>" + LaneStatus.HasTruck
+                //    + "</td><td>" + LaneStatus.TruckRfid 
+                //    + "</td><td>" + LaneStatus.TruckOrc 
+                //    + "</td><td>" + LaneStatus.ContainerOcr
+                //    + "</td><td>" + LaneStatus.ReadIcCard
+                //    + "</td><td>" + LaneStatus.DamageCheck
+                //    + "</td><td>" + LaneStatus.SubmitToTos
+                //    + "</td><td>" + LaneStatus.ReplyFromTos
+                //    + "</td><td>" + LaneStatus.PrintRecipt
+                //    + "</td><td>" + LaneStatus.LiftBarrier
+                //    + "</td><td>" + LaneStatus.DamageChecks 
+                //    + "</td><td>" + LaneStatus.DamageCounts
+                //    + "</td><td>" + LaneStatus.TruckPicUrl
+                //    + "</td><td>" + LaneStatus.FrontTopPicUrl
+                //    + "</td><td>" + LaneStatus.BackTopPicUrl
+                //    + "</td><td>" + LaneStatus.LeftFrontPicUrl
+                //    + "</td><td>" + LaneStatus.LeftBackPicUrl
+                //    + "</td><td>" + LaneStatus.RightFrontPicUrl
+                //    + "</td><td>" + LaneStatus.RightBackPicUrl
+                //    + "</td><td>" + LaneStatus.LeftDamagePicUrl
+                //    + "</td><td>" + LaneStatus.RightDamagePicUrl
+                //    + "</td><td>" + LaneStatus.TopDamagePicUrl
+                //    + "</td><td>" + LaneStatus.Containers//集装箱对象集合。
+                //    + "</tr>"
+                //)
+                //var Containers = LaneStatus.Containers;//这里是一个对象数组。
+                //for (var o= 0; o < Containers.length;o++)
+                //{
+                //    $("#Containers-Table").append(
+                //        "<tr><td>" + Containers[o].Position
+                //        + "</td><td>" + Containers[o].ContainerNo
+                //        + "</td><td>" + Containers[o].OcrContainerNo
+                //        + "</td><td>" + Containers[o].IsoCode
+                //        + "</td><td>" + Containers[o].Damage //这里也是一个对象数组
+                //        + "</tr>"
+                //    )
+
+                //    var Damage = Containers[o].Damage
+                //    for (var p = 0; p < Damage.length; p++)
+                //    {
+                //        $("#Damage-Table").append(
+                //            "<tr><td>" + Damage[p].Side
+                //            + "</td><td>" + Damage[p].DamageCode
+                //            + "</td><td>" + Damage[p].DamgeGrade
+                //            + "</tr>"
+                //        )
+
+                //    }
+
+                //}//Containers的For循环。
+             
+
+            }//外部FOR循环
+
+        }
+
+
+
+
+
+
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+﻿@{
+    ViewData["Title"] = "About";
+}
+<!DOCTYPE html5>
+<html lang="eng">
+<head>
+    <meta charset="utf-8" />
+    <title>none</title>
+    <script src="http://oion935wi.bkt.clouddn.com/jquery-1.6.4.min.js"></script>
+    <script src="http://oion935wi.bkt.clouddn.com/jquery.signalR-2.2.1.min.js"></script>
+    @*<script src="Scripts/jquery.signalR-2.2.1.js"></script>*@
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="http://139.199.225.84:5000/signalr/hubs"></script>
+    @*<script src="http://localhost:5000/signalr/hubs"></script>*@
+    <style>
+        body {
+            background-image: url("http://ohe5u4k9s.bkt.clouddn.com/bg.jpg");
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        div {
+            border-radius: 5%;
+        }
+        p{
+            font-size: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <p> * 调用说明：</p><br />
+        <p> * 车道监控： 获取车道状态列表：hub.On("GetStatusList",(data)=>{  处理data });</p><br />
+        <p> *获取在线会话列表：Hub.On("GetSessionList",(data)=>{处理data});</p><br />
+        <p> *修改车道 hub.Invoke("ChangeStatus","车道ID","修改后的JSON内容");</p><br />
+        <p> * 刷新 hub.Invoke("F5");</p><br />
+        <p> *角色注册：创建connection连接的时候加入QS键值</p><br />
+        <p> *1. Dictionary<string, string>dic = new Dictionary<string, string>();</p><br />
+        <p> *2. dic.Add("Type", "Watch");       </p><br />
+        <p> *3. connection = new HubConnection(服务地址,dic);</p><br /><hr />
+        <p> * 车道代理:  监听获取最新状态（他人更新） hub.On("reciveStatus",(data)=>{  处理DATA });</p><br />
+        <p> *            监听获取指令                 hub.On("reciveAction",(data)=>{ 处理DATA});</p><br />
+        <p> *            修改车道 hub.Invoke("ChangeStatus","车道ID"，"修改后的JSON内容");</p><br />
+        <p> *            角色注册：创建connection连接的时候加入QS键值</p><br />
+        <p> *            1. Dictionary<string, string>dic = new Dictionary<string, string> ();</p><br />
+        <p> *            2. dic.Add("Type", "Client"); </p><br />
+        <p> *            3. connection = new HubConnection(服务地址,dic);</p><br /><hr />
+        <p> * Web客户端：获取在线会话列表： proxy.client.GetSessionList = function(datas){ 处理datas};</p><br />
+        <p> *            获取车道状态列表： proxy.client.GetStatusList = function(datas){处理datas};</p><br />
+        <p> *                            或者：Get请求  url/api/lane_cache</p><br />
+        <p> *修改车道：  1.var proxy = $.connection.messageHub;</p><br />
+        <p> *              $.connection.hub.start(function(){            proxy.server.ChangeStatus("车道ID","修改后的JSON内容");            })</p><br />
+        <p> *角色注册： 在 $.connection.messageHub 之前：</p><br />
+        <p> *$.connection.hub.qs ="Type ={类型}";</p><br />
+        <p> *例如 注册 Client</p><br />
+        <p> *$.connection.hub.qs="Type = Client";</p><br />
+        <p> *注册Watch</p><br />
+        <p> *$.connection.hub.qs = "Type = Watch";</p><br />
+        <p> *默认不注册。</p><br />
+    </div>
+</body>
+</html>

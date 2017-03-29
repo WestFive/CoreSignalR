@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Model\pf_Containers_Struct.cs" />
+    <Compile Remove="Model\pf_Damage_Struct.cs" />
+    <Compile Remove="Model\pf_LaneStatus_Obj.cs" />
+    <Compile Remove="Model\pf_ProgressBar_Obj.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="dotnet-command" Version="1.0.0-preview2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.0" />
+    <PackageReference Include="MySql.Data.EntityFrameworkCore" Version="6.10.1-beta" />
+    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+  </ItemGroup>
+
+</Project>
