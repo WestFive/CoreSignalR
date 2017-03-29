@@ -59,14 +59,8 @@
         <table class="table table-bordered" id="MessageContent-Table">
             <tr>
                 <td>车道code</td>
-                <td>地区编号</td>
-                <td>城市区域编号</td>
-                <td>场站编号</td>
-                <td>车道号</td>
-                <td>车道类型</td>
-                <td>连接ID</td>
-                <td>更新时间</td>
-                <td>车道状态（对象）</td>
+                <td>消息类型</td>
+                <td>消息内容</td>
             </tr>
         </table>
     </div>
@@ -153,14 +147,8 @@
                 var messageContent = lane_caches[i];
                 $("#MessageContent-Table").append(
                     "<tr><td>" + messageContent.lane_code
-                    + "</td><td>" + messageContent.country_code
-                    + "</td><td>" + messageContent.city_code
-                    + "</td><td>" + messageContent.terminal_code
-                    + "</td><td>" + messageContent.lane_name
-                    + "</td><td>" + messageContent.direction
-                    + "</td><td>" + messageContent.connection_id 
-                    + "</td><td>" + messageContent.update_time
-                    + "</td><td>" + messageContent.lane_status //实际为一个LaneStatus对象。
+                    + "</td><td>" + messageContent.message_type
+                    + "</td><td>" + messageContent.message_content
                     + "</tr>"
                 )
                 //var LaneStatus = messageContent.LaneStatus;

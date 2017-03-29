@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
-using CoreSignalR.SignalR;
+using CoreSignalRR.SignalR;
 
-namespace CoreSignalR
+namespace CoreSignalRR
 {
     public class Program
     {

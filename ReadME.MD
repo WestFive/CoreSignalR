@@ -7,9 +7,9 @@ clone and Use it
 step1 
 restore dotnet 
 ```
-https://github.com/WestFive/CoreSignal
-cd CoreSignal
-cd CoreSignal
+https://github.com/WestFive/CoreSignalR
+cd CoreSignalR
+cd CoreSignalR
 dotnet restore
 ```
 step2
@@ -21,7 +21,7 @@ or
 ```
 dotnet publish 
 cd /bin/Debug/netcoreapp1.0/publish 
-run CoreSignal
+run CoreSignalR
 ```
 the server is running .
 In fact ,the sever have a simple webclient .

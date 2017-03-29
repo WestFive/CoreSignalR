@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-namespace CoreSignalR.Controllers
+namespace CoreSignalRR.Controllers
 {
     public class HomeController : Controller
     {

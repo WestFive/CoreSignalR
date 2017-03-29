@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace CoreSignalR.signalr
+namespace CoreSignalRR.signalr
 {
     #region 调用说明
     /*
@@ -52,7 +52,7 @@ namespace CoreSignalR.signalr
         ///日志记录
         private readonly ILogger<MessageHub> _logger;
 
-        private bool SetValue = false;//调试赋值此项设正
+        private bool SetValue = true;//调试赋值此项设正
         public MessageHub(ILogger<MessageHub> logger)
         {
             _logger = logger;
@@ -61,18 +61,20 @@ namespace CoreSignalR.signalr
 
 
 
-            if (StatusList.Count == 0)
-            {
-                if (File.Exists("wwwroot/config/MessageStatusObj.txt"))
-                    StatusList = JsonHelper.DeserializeJsonToList<pf_MessageStatusContext_Obj>(File.ReadAllText("wwwroot/config/MessageStatusObj.txt"));
+            //if (StatusList.Count == 0)
+            //{
+            //    if (File.Exists("wwwroot/config/MessageStatusObj.txt"))
+            //        StatusList = JsonHelper.DeserializeJsonToList<Pf_Message_Obj>(File.ReadAllText("wwwroot/config/MessageStatusObj.txt"));
 
-            }
+            //}
+
             if (SetValue)//调试用
             {
                 if (StatusList.Count == 10)
                 {
 
                     File.WriteAllText("wwwroot/config/MessageStatusObj.txt", JsonHelper.SerializeObject(StatusList));
+                    File.WriteAllText("wwwroot/config/MessageQueueObj.txt", JsonHelper.SerializeObject(QueueList));
                 }//预留赋值的方法
             }
         }
@@ -87,12 +89,13 @@ namespace CoreSignalR.signalr
         /// <summary>
         /// 车道信息列表。
         /// </summary>
-        public static List<pf_MessageStatusContext_Obj> StatusList = new List<pf_MessageStatusContext_Obj>();
+        public static List<Pf_Message_Obj> StatusList = new List<Pf_Message_Obj>();
 
         /// <summary>
         /// 作业信息列表
         /// </summary>
-        public static List<pf_JobContet_Obj> JobList = new List<pf_JobContet_Obj>();
+        public static List<Pf_Message_Obj> QueueList = new List<Pf_Message_Obj>();
+
         /// <summary>
         /// 会话信息列表。
         /// </summary>
@@ -109,6 +112,7 @@ namespace CoreSignalR.signalr
             {
 
                 Clients.All.GetStatusList(JsonHelper.SerializeObject(StatusList));
+                Clients.All.GetQueueList(JsonHelper.SerializeObject(QueueList));
                 Clients.All.GetSessionList(JsonHelper.SerializeObject(sessionObjectList));
             }
             catch (Exception ex)
@@ -134,45 +138,52 @@ namespace CoreSignalR.signalr
                 switch (obj.message_type)
                 {
                     case "Status":
-                        var statusObj = JsonHelper.DeserializeJsonToObject<pf_MessageStatusContext_Obj>(JsonHelper.SerializeObject(obj.message_content));
-                        if (StatusList.Count(x => x.lane_code == laneCode) > 0)
+
+                        lock (StatusList)
                         {
-
-                            lock (StatusList)
+                            if (StatusList.Count(x => x.lane_code == obj.lane_code) > 0)
                             {
-                                if (StatusList.Count(x => x.lane_code == statusObj.lane_code) > 0)
+                                StatusList[StatusList.FindIndex(x => x.lane_code == obj.lane_code)] = obj;//更新content
+
+                                if (sessionObjectList.Count(x => x.ClientName == obj.lane_code) > 0)
                                 {
-                                    statusObj.update_time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                                    StatusList[StatusList.FindIndex(x => x.lane_code == statusObj.lane_code)] = statusObj;//车道对象
-                                    if (statusObj.connection_id != "")
-                                    {
-                                        var reobj = new Pf_Message_Obj { message_type = "Status", message_content = statusObj };//编码成消息对象
+                                    Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == obj.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(obj));
 
-                                        Clients.Client(statusObj.connection_id).reciveStatus(JsonHelper.SerializeObject(reobj));  //如果有这个客户端就推送给这个客户端
-
-                                    }
-
-                                    F5();//刷新
-                                    ReCode = "状态刷新/修改成功";
-                                    GetRe();//服务器返回
-                                    ReCode = "无状态";
+                                    InsertLog(obj.lane_code, JsonHelper.SerializeObject(obj));//插入一条日志
                                 }
+
                             }
                         }
                         break;
                     case "Action":
-                        var actionObj = JsonHelper.DeserializeJsonToObject<pf_MessageActionContext_Obj>(JsonHelper.SerializeObject(obj.message_content));
-                        if (actionObj.connection_id != "")
+
+                        if (sessionObjectList.Count(x => x.ClientName == obj.lane_code) > 0)
                         {
-                            var reobj = new Pf_Message_Obj { message_type = "Action", message_content = actionObj };
-                            Clients.Client(actionObj.connection_id).reciveAction(JsonHelper.SerializeObject(reobj));//返回JSON对象
+                            Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == obj.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(obj));
+
+                            InsertLog(obj.lane_code, JsonHelper.SerializeObject(obj));//插入一条日志
+                        }
+
+                        break;
+                    case "Queue":
+                        lock (QueueList)
+                        {
+                            if (QueueList.Count(x => x.lane_code == obj.lane_code) > 0)
+                            {
+                                QueueList[QueueList.FindIndex(x => x.lane_code == obj.lane_code)] = obj;//更新content
+
+                                if (sessionObjectList.Count(x => x.ClientName == obj.lane_code) > 0)
+                                {
+                                    Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == obj.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(obj));
+
+                                    InsertLog(obj.lane_code, JsonHelper.SerializeObject(obj));//插入一条日志
+                                }
+
+                            }
                         }
                         break;
-                    case "Job":
-                        var jobObj = JsonHelper.DeserializeJsonToObject<pf_JobContet_Obj>(JsonHelper.SerializeObject(obj.message_content));
 
 
-                        break;
                 }
             }
             catch (Exception ex)
@@ -183,12 +194,23 @@ namespace CoreSignalR.signalr
                 Loger.AddErrorText("更新状态失败", ex);
 
             }
+            finally
+            {
+                F5();//刷新
+            }
 
 
 
 
 
 
+        }
+
+
+
+        private void InsertLog(string User, string Value)
+        {
+            Loger.AddLogText("Time:" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "User:" + User + "Message:" + JsonHelper.SerializeObject(Value));
         }
         #endregion
         #region 会话列表
@@ -244,17 +266,23 @@ namespace CoreSignalR.signalr
 
                             var temp = StatusList.FirstOrDefault(x => x.lane_code == Context.QueryString["Name"]);
 
-                            temp.connection_id = Context.ConnectionId;
+
 
 
                             //数据更新
                         }
                         if (SetValue)//调试用赋值方法
                         {
-                            pf_MessageStatusContext_Obj obj = new pf_MessageStatusContext_Obj();
-                            obj.lane_code = Context.QueryString["Name"];
-                            obj.connection_id = "offline";
-                            StatusList.Add(obj);
+                            for (int i = 1; i <= 10; i++)
+                            {
+                                Pf_Message_Obj obj = new Pf_Message_Obj { message_type = "Status", lane_code = "XM00" + i, message_content = "{}" };
+                                Pf_Message_Obj obj2 = new Pf_Message_Obj { message_type = "Queue", lane_code = "XM00" + i, message_content = "{}" };
+                                StatusList.Add(obj);
+                                QueueList.Add(obj2);
+                            }
+
+
+
                         }
                         break;
                     case "LaneWatch":
@@ -293,17 +321,13 @@ namespace CoreSignalR.signalr
             try
             {
                 ///判断是否已经存在该条车道
-                if (StatusList.Count(x => x.connection_id == Context.ConnectionId) > 0)
+                if (sessionObjectList.Count(x => x.ConnectionID == Context.ConnectionId) > 0)
                 {
-                    var temp = StatusList.FirstOrDefault(x => x.connection_id == Context.ConnectionId);
+                    var thesession = sessionObjectList[sessionObjectList.FindIndex(x => x.ConnectionID == Context.ConnectionId)].ConnectionID;
+                    var temp = StatusList.FirstOrDefault(x => x.lane_code == thesession);
+                    temp.message_content = "{}";//离线清空
 
-                    // StatusList.Remove(temp);
-                    //在就移除 退出
-                    temp.connection_id = "offline";
-                    temp.lane_status = "{}";
-
-                    _logger.LogWarning("车道代理：{0},与服务断开连接", Context.Request.HttpContext.Connection.RemoteIpAddress);
-                    Loger.AddLogText(DateTime.Now.ToString() + temp.lane_name + "与服务断开连接");
+                    InsertLog(temp.lane_code, "与服务器断开连接");
                 }
 
                 //判断是否存在会话。

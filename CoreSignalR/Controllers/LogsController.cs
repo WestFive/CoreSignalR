@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Data.Common;
 using System.Net;
 
-namespace CoreSignalR.Controllers
+namespace CoreSignalRR.Controllers
 {
     [Produces("application/json")]
     [Route("api/Logs")]

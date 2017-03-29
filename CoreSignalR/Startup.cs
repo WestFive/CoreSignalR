@@ -15,7 +15,7 @@ using NLog.Web;
 using System.IO;
 using Swashbuckle.AspNetCore.Swagger;
 
-namespace CoreSignalR.SignalR
+namespace CoreSignalRR.SignalR
 {
     public class Startup
     {
