@@ -125,6 +125,10 @@ namespace CoreSignalRR.signalr
                 _logger.LogError("刷新模块", ex.ToString());
 
             }
+
+            
+             
+
         }
         #endregion
         #region 发送消息
@@ -202,11 +206,6 @@ namespace CoreSignalRR.signalr
             {
                 F5();//刷新
             }
-
-
-
-
-
 
         }
 
@@ -327,11 +326,14 @@ namespace CoreSignalRR.signalr
                 ///判断是否已经存在该条车道
                 if (sessionObjectList.Count(x => x.ConnectionID == Context.ConnectionId) > 0)
                 {
-                    var thesession = sessionObjectList[sessionObjectList.FindIndex(x => x.ConnectionID == Context.ConnectionId)].ConnectionID;
-                    var temp = StatusList.FirstOrDefault(x => x.lane_code == thesession);
-                    temp.message_content = "{}";//离线清空
+                    var thesession = sessionObjectList[sessionObjectList.FindIndex(x => x.ConnectionID == Context.ConnectionId)];
+                    var temp = StatusList.FirstOrDefault(x => x.lane_code == thesession.ClientName);
+                    if (temp != null)
+                    {
+                        temp.message_content = "{}";//离线清空
 
-                    InsertLog(temp.lane_code, "与服务器断开连接");
+                        InsertLog(temp.lane_code, "与服务器断开连接");
+                    }
                 }
 
                 //判断是否存在会话。

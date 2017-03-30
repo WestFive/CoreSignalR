@@ -57,9 +57,9 @@ namespace CoreSignalRR.SignalR
             {
                 options.Transports.EnabledTransports = Microsoft.AspNetCore.SignalR.TransportType.All;
                 options.Hubs.EnableDetailedErrors = true;
-                options.Transports.DisconnectTimeout = TimeSpan.FromSeconds(6);//超时时间
-                options.Transports.TransportConnectTimeout = TimeSpan.FromSeconds(6);//连接超时时间
-                //options.Transports.KeepAlive = TimeSpan.FromSeconds(3);//保持连接的心跳时间
+                options.Transports.DisconnectTimeout = TimeSpan.FromSeconds(30);//超时时间
+                options.Transports.TransportConnectTimeout = TimeSpan.FromSeconds(30);//连接超时时间
+                //options.Transports.KeepAlive = TimeSpan.FromSeconds(15);//保持连接的心跳时间
             });
 
 

@@ -27,10 +27,18 @@ namespace CoreSignalRR.Controllers
         }
 
         [EnableCors("AllowAll")]
+        public IActionResult Queue()
+        {
+            return View();
+        }
+
+        [EnableCors("AllowAll")]
         public IActionResult Error()
         {
             return View();
         }
+
+
 
     }
 }

@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "车道状态";
+    ViewData["Title"] = "作业缓存";
     //车道代理缓存
 }
 <!DOCTYPE html5>
@@ -133,7 +133,7 @@
 
         var proxy = $.connection.messageHub; //连接到具体的Hub.
 
-        proxy.client.GetStatusList = function (datas) {
+        proxy.client.GetQueueList = function (datas) {
             var lane_caches = JSON.parse(datas);
 
             $("#MessageContent-Table tr:not(:first)").empty("");
@@ -152,11 +152,9 @@
             }//外部FOR循环
 
         }
-   
+    
 
-        
-
-
+      
 
 
 
