@@ -12,8 +12,7 @@
     @*<script src="Scripts/jquery.signalR-2.2.1.js"></script>*@
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
     @*<script src="http://60.205.200.73:5000/signalr/hubs"></script>*@
-    <script src="http://139.199.225.84:5001/signalr/hubs"></script>
-    @*<script src="http://localhost:5000/signalr/hubs"></script>*@
+    <script src="http://localhost:5000/signalr/hubs"></script>
     <style>
         body {
             background-image: url("http://ohe5u4k9s.bkt.clouddn.com/bg.jpg");
@@ -57,10 +56,8 @@
     </div>*@
     <div class="span8">
         <table class="table table-bordered" id="MessageContent-Table">
-            <tr>
-                <td>车道code</td>
-                <td>消息类型</td>
-                <td>消息内容</td>
+            <tr>lanes
+            <td>Value</td>
             </tr>
         </table>
     </div>
@@ -143,9 +140,7 @@
 
                 var messageContent = lane_caches[i];
                 $("#MessageContent-Table").append(
-                    "<tr><td>" + messageContent.lane_code
-                    + "</td><td>" + messageContent.message_type
-                    + "</td><td>" + messageContent.message_content
+                    "<tr><td>" + messageContent
                     + "</tr>"
                 )
 
