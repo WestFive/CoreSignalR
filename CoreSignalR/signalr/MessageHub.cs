@@ -365,20 +365,7 @@ namespace CoreSignalRR.signalr
 
                             //数据更新
                         }
-                        if (SetValue)//调试用赋值方法
-                        {
-                            if (laneList.Count < 10)
-                            {
-                                for (int i = 1; i <= 10; i++)
-                                {
-                                    Pf_Message_lane_Object laneobj = new Pf_Message_lane_Object { send_time = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}", lane = null, lane_code = "CN-XIAMEN-SXCT-000" + i };
-                                    laneList.Add(laneobj);
-                                }
-                            }
-
-
-
-                        }
+                    
                         break;
                     case "LaneWatch":
 
@@ -396,6 +383,20 @@ namespace CoreSignalRR.signalr
 
                 }
                 AddToSession();//加入车道缓存。
+                if (SetValue)//调试用赋值方法
+                {
+                    if (laneList.Count < 10)
+                    {
+                        for (int i = 1; i <= 10; i++)
+                        {
+                            Pf_Message_lane_Object laneobj = new Pf_Message_lane_Object { send_time = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}", lane = null, lane_code = "CN-XIAMEN-SXCT-000" + i };
+                            laneList.Add(laneobj);
+                        }
+                    }
+
+
+
+                }
                 F5();//刷新
                 #region 测试用
 

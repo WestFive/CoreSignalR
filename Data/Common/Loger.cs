@@ -59,7 +59,7 @@ namespace Data.Common
                     }
                     catch (Exception ex)
                     {
-                        logs.Add(item + ":没有相关日志记录");
+                        logs.Add(item + ":没有相关日志记录"+ex.ToString());
                         continue;
                     }
 
@@ -112,7 +112,7 @@ namespace Data.Common
             }
             catch(Exception ex)
             {
-                return "追加到日志失败";
+                return "追加到日志失败"+ex.ToString();
             }
             // return "追加到日志成功";
         }
