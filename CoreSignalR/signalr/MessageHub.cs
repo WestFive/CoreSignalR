@@ -52,7 +52,7 @@ namespace CoreSignalRR.signalr
         ///日志记录
         private readonly ILogger<MessageHub> _logger;
 
-        private bool SetValue = false;//调试赋值此项设正
+        private bool SetValue = true;//调试赋值此项设正
         public MessageHub(ILogger<MessageHub> logger)
         {
             _logger = logger;
@@ -61,16 +61,16 @@ namespace CoreSignalRR.signalr
 
 
 
-            if (StatusList.Count == 0)
-            {
-                if (File.Exists("wwwroot/config/MessageStatusObj.txt"))
-                { StatusList = JsonHelper.DeserializeJsonToList<Pf_Message_Obj>(File.ReadAllText("wwwroot/config/MessageStatusObj.txt")); }
-                if(File.Exists("wwwroot/config/MessageQueueObj.txt"))
-                {
-                    QueueList = JsonHelper.DeserializeJsonToList<Pf_Message_Obj>(File.ReadAllText("wwwroot/config/MessageQueueObj.txt"));
-                }
+            //if (StatusList.Count == 0)
+            //{
+            //    if (File.Exists("wwwroot/config/MessageStatusObj.txt"))
+            //    { StatusList = JsonHelper.DeserializeJsonToList<Pf_Message_Obj>(File.ReadAllText("wwwroot/config/MessageStatusObj.txt")); }
+            //    //if (File.Exists("wwwroot/config/MessageQueueObj.txt"))
+            //    //{
+            //    //    QueueList = JsonHelper.DeserializeJsonToList<Pf_Message_Obj>(File.ReadAllText("wwwroot/config/MessageQueueObj.txt"));
+            //    //}
 
-            }
+            //}
 
             //if (SetValue)//调试用
             //{
@@ -93,12 +93,15 @@ namespace CoreSignalRR.signalr
         /// <summary>
         /// 车道信息列表。
         /// </summary>
-        public static List<Pf_Message_Obj> StatusList = new List<Pf_Message_Obj>();
+        //public static List<Pf_Message_Obj> StatusList = new List<Pf_Message_Obj>();
 
+        //public static List<object> lanes = new List<object>();
+
+        public static List<Pf_Message_lane_Object> laneList = new List<Pf_Message_lane_Object>();
         /// <summary>
         /// 作业信息列表
         /// </summary>
-        public static List<Pf_Message_Obj> QueueList = new List<Pf_Message_Obj>();
+        public static List<Pf_Messge_Queue_Object> QueueList = new List<Pf_Messge_Queue_Object>();
 
         /// <summary>
         /// 会话信息列表。
@@ -112,81 +115,176 @@ namespace CoreSignalRR.signalr
         /// </summary>
         public void F5()
         {
-            try
+            if (laneList.Count != 0)
             {
+                List<object> lanes = new List<object>();
+                foreach (var item in laneList)
+                {
+                    lanes.Add(item.lane);
 
-                Clients.All.GetStatusList(JsonHelper.SerializeObject(StatusList));
-                Clients.All.GetQueueList(JsonHelper.SerializeObject(QueueList));
-                Clients.All.GetSessionList(JsonHelper.SerializeObject(sessionObjectList));
+                }
+
+                List<object> queues = new List<object>();
+                if (QueueList.Count != 0)
+                {
+                    foreach (var item in QueueList)
+                    {
+                        queues.Add(item.queue);
+                    }
+
+                }
+
+                try
+                {
+
+                    Clients.All.GetStatusList(JsonHelper.SerializeObject(lanes));
+                    Clients.All.GetQueueList(JsonHelper.SerializeObject(queues));
+                  
+                }
+                catch (Exception ex)
+                {
+                    //log.AddErrorText("刷新模块", ex);
+                    _logger.LogError("刷新模块", ex.ToString());
+
+                }
             }
-            catch (Exception ex)
-            {
-                //log.AddErrorText("刷新模块", ex);
-                _logger.LogError("刷新模块", ex.ToString());
+            Clients.All.GetSessionList(JsonHelper.SerializeObject(sessionObjectList));
 
-            }
 
-            
-             
 
         }
         #endregion
-        #region 发送消息
+        #region 车道监控发送消息给车道代理
         /// <summary>
         /// 发送消息
         /// </summary>
         /// <param name="laneID"></param>
         /// <param name="JsonMessage"></param>
-        [HubMethodName("ChangeStatus")]
-        public void LaneStatusChange(string laneCode, string JsonMessage)
+        [HubMethodName("SendMessage")]
+        public void SendMessage(string laneCode, string JsonMessage)
         {
             try
             {
                 Pf_Message_Obj obj = (Pf_Message_Obj)DataHepler.Decoding(JsonMessage);
                 switch (obj.message_type)
                 {
-                    case "Status":
+                    case "lane":
 
-                        lock (StatusList)
+                        lock (laneList)
                         {
-                            if (StatusList.Count(x => x.lane_code == obj.lane_code) > 0)
+                            Pf_Message_lane_Object lanecontent = (Pf_Message_lane_Object)obj.message_content;
+
+                            if (sessionObjectList.Count(x => x.ClientName == lanecontent.lane_code) > 0)
                             {
-                                StatusList[StatusList.FindIndex(x => x.lane_code == obj.lane_code)] = obj;//更新content
+                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == lanecontent.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(lanecontent));
 
-                                if (sessionObjectList.Count(x => x.ClientName == obj.lane_code) > 0)
-                                {
-                                    Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == obj.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(obj));
+                                InsertLog(lanecontent.lane_code, JsonHelper.SerializeObject(lanecontent));//插入一条日志
+                            }
 
-                                    InsertLog(obj.lane_code, JsonHelper.SerializeObject(obj));//插入一条日志
-                                }
+                        }
+                        break;
+                    case "directive":
+                        pf_Message_Directive directivecontent = (pf_Message_Directive)obj.message_content;
+
+                        if (sessionObjectList.Count(x => x.ClientName == directivecontent.lane_code) > 0)
+                        {
+                            Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == directivecontent.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(directivecontent));
+
+                            InsertLog(directivecontent.lane_code, JsonHelper.SerializeObject(directivecontent));//插入一条日志
+                        }
+
+                        break;
+                    case "queue":
+                        lock (QueueList)
+                        {
+                            Pf_Messge_Queue_Object queuecontent = (Pf_Messge_Queue_Object)obj.message_content;
+
+                            if (sessionObjectList.Count(x => x.ClientName == queuecontent.lane_code) > 0)
+                            {
+                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == queuecontent.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(obj));
+
+                                InsertLog(queuecontent.lane_code, JsonHelper.SerializeObject(obj));//插入一条日志
+                            }
+
+
+                        }
+                        break;
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+
+                ReCode = "状态刷新/修改失败";
+                GetRe();
+                Loger.AddErrorText("更新状态失败", ex);
+
+            }
+            //finally
+            //{
+            //    F5();//刷新
+            //} //车道代理不刷新
+
+        }
+
+
+
+
+
+        private void InsertLog(string User, string Value)
+        {
+            Loger.AddLogText("Time:" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "User:" + User + "Message:" + JsonHelper.SerializeObject(Value));
+        }
+        #endregion
+
+
+
+
+
+        #region 车道代理自我状态改变修改缓存 
+        /// <summary>
+        /// 发送消息
+        /// </summary>
+        /// <param name="laneID"></param>
+        /// <param name="JsonMessage"></param>
+        [HubMethodName("Change")]
+        public void Change(string laneCode, string JsonMessage)
+        {
+            try
+            {
+                Pf_Message_Obj obj = (Pf_Message_Obj)DataHepler.Decoding(JsonMessage);
+                switch (obj.message_type)
+                {
+                    case "lane":
+
+                        lock (laneList)
+                        {
+                            Pf_Message_lane_Object lanecontent = (Pf_Message_lane_Object)obj.message_content;
+
+
+                            if (laneList.Count(x => x.lane_code == lanecontent.lane_code) > 0)
+                            {
+                                laneList[laneList.FindIndex(x => x.lane_code == lanecontent.lane_code)] = lanecontent;//更新content
+
+
 
                             }
                         }
                         break;
-                    case "Action":
-
-                        if (sessionObjectList.Count(x => x.ClientName == obj.lane_code) > 0)
-                        {
-                            Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == obj.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(obj));
-
-                            InsertLog(obj.lane_code, JsonHelper.SerializeObject(obj));//插入一条日志
-                        }
-
-                        break;
-                    case "Queue":
+                    case "queue":
                         lock (QueueList)
                         {
-                            if (QueueList.Count(x => x.lane_code == obj.lane_code) > 0)
+                            Pf_Messge_Queue_Object queuecontent = (Pf_Messge_Queue_Object)obj.message_content;
+                            if (QueueList.Count(x => x.queue_id == queuecontent.queue_id) > 0)
                             {
-                                QueueList[QueueList.FindIndex(x => x.lane_code == obj.lane_code)] = obj;//更新content
+                                QueueList[QueueList.FindIndex(x => x.queue_id == queuecontent.queue_id)] = queuecontent;//更新content
 
-                                if (sessionObjectList.Count(x => x.ClientName == obj.lane_code) > 0)
-                                {
-                                    Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == obj.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(obj));
 
-                                    InsertLog(obj.lane_code, JsonHelper.SerializeObject(obj));//插入一条日志
-                                }
-
+                            }
+                            else
+                            {
+                                QueueList.Add(queuecontent);
                             }
                         }
                         break;
@@ -207,13 +305,6 @@ namespace CoreSignalRR.signalr
                 F5();//刷新
             }
 
-        }
-
-
-
-        private void InsertLog(string User, string Value)
-        {
-            Loger.AddLogText("Time:" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "User:" + User + "Message:" + JsonHelper.SerializeObject(Value));
         }
         #endregion
         #region 会话列表
@@ -264,10 +355,10 @@ namespace CoreSignalRR.signalr
                 {
                     case "Client":
 
-                        if (StatusList.Count(x => x.lane_code == Context.QueryString["Name"]) > 0)
+                        if (laneList.Count(x => x.lane_code == Context.QueryString["Name"]) > 0)
                         {
 
-                            var temp = StatusList.FirstOrDefault(x => x.lane_code == Context.QueryString["Name"]);
+                            var temp = laneList.FirstOrDefault(x => x.lane_code == Context.QueryString["Name"]);
 
 
 
@@ -276,12 +367,13 @@ namespace CoreSignalRR.signalr
                         }
                         if (SetValue)//调试用赋值方法
                         {
-                            for (int i = 1; i <= 10; i++)
+                            if (laneList.Count < 10)
                             {
-                                Pf_Message_Obj obj = new Pf_Message_Obj { message_type = "Status", lane_code = "XM00" + i, message_content = "{}" };
-                                Pf_Message_Obj obj2 = new Pf_Message_Obj { message_type = "Queue", lane_code = "XM00" + i, message_content = "{}" };
-                                StatusList.Add(obj);
-                                QueueList.Add(obj2);
+                                for (int i = 1; i <= 10; i++)
+                                {
+                                    Pf_Message_lane_Object laneobj = new Pf_Message_lane_Object { send_time = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}", lane = null, lane_code = "CN-XIAMEN-SXCT-000" + i };
+                                    laneList.Add(laneobj);
+                                }
                             }
 
 
@@ -327,10 +419,10 @@ namespace CoreSignalRR.signalr
                 if (sessionObjectList.Count(x => x.ConnectionID == Context.ConnectionId) > 0)
                 {
                     var thesession = sessionObjectList[sessionObjectList.FindIndex(x => x.ConnectionID == Context.ConnectionId)];
-                    var temp = StatusList.FirstOrDefault(x => x.lane_code == thesession.ClientName);
+                    var temp = laneList.FirstOrDefault(x => x.lane_code == thesession.ClientName);
                     if (temp != null)
                     {
-                        temp.message_content = "{}";//离线清空
+                        temp.lane = null;//离线清空
 
                         InsertLog(temp.lane_code, "与服务器断开连接");
                     }
