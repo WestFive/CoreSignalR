@@ -242,7 +242,7 @@ namespace CoreSignalRR.signalr
 
 
 
-        #region 车道代理自我状态改变修改缓存 
+        #region 车道代理自我状态改变修改缓存 0
         /// <summary>
         /// 发送消息
         /// </summary>
