@@ -139,7 +139,7 @@ namespace CoreSignalRR.signalr
 
                     Clients.All.GetStatusList(JsonHelper.SerializeObject(lanes));
                     Clients.All.GetQueueList(JsonHelper.SerializeObject(queues));
-                  
+
                 }
                 catch (Exception ex)
                 {
@@ -172,38 +172,38 @@ namespace CoreSignalRR.signalr
 
                         lock (laneList)
                         {
-                            Pf_Message_lane_Object lanecontent = (Pf_Message_lane_Object)obj.message_content;
+                            Pf_Message_lane_Object lanecontent = JsonHelper.DeserializeJsonToObject<Pf_Message_lane_Object>(JsonHelper.SerializeObject(obj.message_content));
 
                             if (sessionObjectList.Count(x => x.ClientName == lanecontent.lane_code) > 0)
                             {
-                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == lanecontent.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(lanecontent));
+                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == lanecontent.lane_code)].ConnectionID).reciveLane(JsonHelper.SerializeObject(lanecontent));
 
-                                InsertLog(lanecontent.lane_code, JsonHelper.SerializeObject(lanecontent));//插入一条日志
+                                InsertLog(lanecontent.lane_code, JsonHelper.SerializeObject(lanecontent));
                             }
 
                         }
                         break;
                     case "directive":
-                        pf_Message_Directive directivecontent = (pf_Message_Directive)obj.message_content;
+                        pf_Message_Directive directivecontent = JsonHelper.DeserializeJsonToObject<pf_Message_Directive>(JsonHelper.SerializeObject(obj.message_content));
 
                         if (sessionObjectList.Count(x => x.ClientName == directivecontent.lane_code) > 0)
                         {
-                            Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == directivecontent.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(directivecontent));
+                            Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == directivecontent.lane_code)].ConnectionID).reciveDirective(JsonHelper.SerializeObject(directivecontent));
 
-                            InsertLog(directivecontent.lane_code, JsonHelper.SerializeObject(directivecontent));//插入一条日志
+                            InsertLog(directivecontent.lane_code, JsonHelper.SerializeObject(directivecontent));
                         }
 
                         break;
                     case "queue":
                         lock (QueueList)
                         {
-                            Pf_Messge_Queue_Object queuecontent = (Pf_Messge_Queue_Object)obj.message_content;
+                            Pf_Messge_Queue_Object queuecontent = JsonHelper.DeserializeJsonToObject<Pf_Messge_Queue_Object>(JsonHelper.SerializeObject(obj.message_content));
 
                             if (sessionObjectList.Count(x => x.ClientName == queuecontent.lane_code) > 0)
                             {
-                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == queuecontent.lane_code)].ConnectionID).reciveStatus(JsonHelper.SerializeObject(obj));
+                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == queuecontent.lane_code)].ConnectionID).reciveQueue(JsonHelper.SerializeObject(obj));
 
-                                InsertLog(queuecontent.lane_code, JsonHelper.SerializeObject(obj));//插入一条日志
+                                InsertLog(queuecontent.lane_code, JsonHelper.SerializeObject(obj));
                             }
 
 
@@ -260,7 +260,7 @@ namespace CoreSignalRR.signalr
 
                         lock (laneList)
                         {
-                            Pf_Message_lane_Object lanecontent = (Pf_Message_lane_Object)obj.message_content;
+                            Pf_Message_lane_Object lanecontent = JsonHelper.DeserializeJsonToObject<Pf_Message_lane_Object>(JsonHelper.SerializeObject(obj.message_content));
 
 
                             if (laneList.Count(x => x.lane_code == lanecontent.lane_code) > 0)
@@ -275,7 +275,7 @@ namespace CoreSignalRR.signalr
                     case "queue":
                         lock (QueueList)
                         {
-                            Pf_Messge_Queue_Object queuecontent = (Pf_Messge_Queue_Object)obj.message_content;
+                            Pf_Messge_Queue_Object queuecontent = JsonHelper.DeserializeJsonToObject<Pf_Messge_Queue_Object>(JsonHelper.SerializeObject(obj.message_content));
                             if (QueueList.Count(x => x.queue_id == queuecontent.queue_id) > 0)
                             {
                                 QueueList[QueueList.FindIndex(x => x.queue_id == queuecontent.queue_id)] = queuecontent;//更新content
@@ -365,7 +365,7 @@ namespace CoreSignalRR.signalr
 
                             //数据更新
                         }
-                    
+
                         break;
                     case "LaneWatch":
 
