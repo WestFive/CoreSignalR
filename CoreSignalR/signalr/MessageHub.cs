@@ -165,7 +165,7 @@ namespace CoreSignalRR.signalr
         {
             try
             {
-                Pf_Message_Obj obj = (Pf_Message_Obj)DataHepler.Decoding(JsonMessage);
+                Pf_Message_Obj<object> obj = JsonHelper.DeserializeJsonToObject<Pf_Message_Obj<object>>(JsonMessage);
                 switch (obj.message_type)
                 {
                     case "lane":
@@ -253,14 +253,16 @@ namespace CoreSignalRR.signalr
         {
             try
             {
-                Pf_Message_Obj obj = (Pf_Message_Obj)DataHepler.Decoding(JsonMessage);
+                Pf_Message_Obj<object> obj = JsonHelper.DeserializeJsonToObject<Pf_Message_Obj<object>>(JsonMessage);
                 switch (obj.message_type)
                 {
                     case "lane":
 
                         lock (laneList)
                         {
+
                             Pf_Message_lane_Object lanecontent = JsonHelper.DeserializeJsonToObject<Pf_Message_lane_Object>(JsonHelper.SerializeObject(obj.message_content));
+                            
 
 
                             if (laneList.Count(x => x.lane_code == lanecontent.lane_code) > 0)

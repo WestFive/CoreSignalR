@@ -23,7 +23,7 @@ namespace Data.Common
 
         public static Object Decoding(string json)
         {
-            return JsonHelper.DeserializeJsonToObject<Pf_Message_Obj>(json);
+            return JsonHelper.DeserializeJsonToObject<Pf_Message_Obj<object>>(json);
         }
 
 

@@ -10,8 +10,9 @@ namespace Data.Model
     /// JSON总体消息对象
     /// </summary>
     /// 
-    public class Pf_Message_Obj
+    public class Pf_Message_Obj<T> where T :new()
     {
+      
         /// <summary>
         /// 消息类型 指令或状态或作业
         /// </summary>
@@ -20,6 +21,13 @@ namespace Data.Model
         /// 消息内容
         /// </summary>
         public object message_content { get; set; }
+
+        public Pf_Message_Obj(string type, T content)
+        {
+            message_type = type;
+            message_content = content;
+
+        }
 
     }
 
