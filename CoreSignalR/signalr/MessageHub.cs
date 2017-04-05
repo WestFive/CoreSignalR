@@ -131,7 +131,7 @@ namespace CoreSignalRR.signalr
                     {
                         queues.Add(item.queue);
                     }
-
+                    queues.Reverse();
                 }
 
                 try
@@ -152,6 +152,13 @@ namespace CoreSignalRR.signalr
 
 
 
+        }
+        #endregion
+        #region 清空作业
+        public void Clear()
+        {
+            QueueList.Clear();
+            F5();
         }
         #endregion
         #region 车道监控发送消息给车道代理
@@ -262,7 +269,7 @@ namespace CoreSignalRR.signalr
                         {
 
                             Pf_Message_lane_Object lanecontent = JsonHelper.DeserializeJsonToObject<Pf_Message_lane_Object>(JsonHelper.SerializeObject(obj.message_content));
-                            
+
 
 
                             if (laneList.Count(x => x.lane_code == lanecontent.lane_code) > 0)
