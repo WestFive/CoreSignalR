@@ -392,6 +392,7 @@ namespace CoreSignalRR.signalr
 
                 }
                 AddToSession();//加入车道缓存。
+
                 if (SetValue)//调试用赋值方法
                 {
                     if (laneList.Count < 10)
@@ -399,13 +400,13 @@ namespace CoreSignalRR.signalr
                         for (int i = 1; i <= 10; i++)
                         {
                             Pf_Message_lane_Object laneobj = new Pf_Message_lane_Object { send_time = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}", lane = null, lane_code = "CN-XIAMEN-SXCT-000" + i };
+                            laneobj.lane = new Lane { lane_code = "CN-XIAMEN-SXCT-000" + i ,update_time=$"{DateTime.Now:yyyy-MM-dd HH:mm:ss}"};
                             laneList.Add(laneobj);
                         }
                     }
-
-
-
                 }
+
+
                 F5();//刷新
                 #region 测试用
 
@@ -432,7 +433,7 @@ namespace CoreSignalRR.signalr
                     var temp = laneList.FirstOrDefault(x => x.lane_code == thesession.ClientName);
                     if (temp != null)
                     {
-                        temp.lane = null;//离线清空
+                        //temp.lane = null;//离线清空
 
                         InsertLog(temp.lane_code, "与服务器断开连接");
                     }

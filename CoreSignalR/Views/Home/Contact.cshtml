@@ -131,7 +131,7 @@
 
         var proxy = $.connection.messageHub; //连接到具体的Hub.
 
-        proxy.client.GetStatusList = function (datas) {
+        proxy.client.GetLaneList = function (datas) {
             var lane_caches = JSON.parse(datas);
 
             $("#MessageContent-Table tr:not(:first)").empty("");

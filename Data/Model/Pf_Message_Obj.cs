@@ -61,7 +61,20 @@ namespace Data.Model
     }
 
 
-
+    public class Lane
+    {
+        public string lane_code { get; set; }
+        public string lane_name { get; set; }
+        public string country_code { get; set; }
+        public string city_code { get; set; }
+        public string terminal_code { get; set; }
+        public string direction { get; set; }
+        public bool has_truck { get; set; }
+        public string lane_type { get; set; }
+        public string led_display { get; set; }
+        public string barrier { get; set; }
+        public string update_time { get; set; }
+    }
 
 
 
