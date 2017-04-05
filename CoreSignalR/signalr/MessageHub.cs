@@ -137,7 +137,7 @@ namespace CoreSignalRR.signalr
                 try
                 {
 
-                    Clients.All.GetStatusList(JsonHelper.SerializeObject(lanes));
+                    Clients.All.GetLaneList(JsonHelper.SerializeObject(lanes));
                     Clients.All.GetQueueList(JsonHelper.SerializeObject(queues));
 
                 }
