@@ -400,8 +400,16 @@ namespace CoreSignalRR.signalr
                         for (int i = 1; i <= 10; i++)
                         {
                             Pf_Message_lane_Object laneobj = new Pf_Message_lane_Object { send_time = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}", lane = null, lane_code = "CN-XIAMEN-SXCT-000" + i };
-                            laneobj.lane = new Lane { lane_code = "CN-XIAMEN-SXCT-000" + i ,update_time=$"{DateTime.Now:yyyy-MM-dd HH:mm:ss}"};
-                            laneList.Add(laneobj);
+                            if (i <= 5)
+                            {
+                                laneobj.lane = new Lane { lane_code = "CN-XIAMEN-SXCT-000" + i, update_time = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}",lane_name="GI0"+i,lane_type="In" };
+                                laneList.Add(laneobj);
+                            }
+                            else
+                            {
+                                laneobj.lane = new Lane { lane_code = "CN-XIAMEN-SXCT-000" + i, update_time = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}",lane_name="GO0"+(i-5),lane_type="Out" };
+                                laneList.Add(laneobj);
+                            }
                         }
                     }
                 }
