@@ -53,6 +53,7 @@ namespace CoreSignalRR.SignalR
                                                                   .AllowCredentials()));
             // Add framework services.
             services.AddMvc();
+        
             services.AddSignalR(options =>
             {
                 options.Transports.EnabledTransports = Microsoft.AspNetCore.SignalR.TransportType.All;
