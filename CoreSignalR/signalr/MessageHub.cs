@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Hubs;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -61,26 +62,7 @@ namespace CoreSignalRR.signalr
 
 
 
-            //if (StatusList.Count == 0)
-            //{
-            //    if (File.Exists("wwwroot/config/MessageStatusObj.txt"))
-            //    { StatusList = JsonHelper.DeserializeJsonToList<Pf_Message_Obj>(File.ReadAllText("wwwroot/config/MessageStatusObj.txt")); }
-            //    //if (File.Exists("wwwroot/config/MessageQueueObj.txt"))
-            //    //{
-            //    //    QueueList = JsonHelper.DeserializeJsonToList<Pf_Message_Obj>(File.ReadAllText("wwwroot/config/MessageQueueObj.txt"));
-            //    //}
-
-            //}
-
-            //if (SetValue)//调试用
-            //{
-            //    if (StatusList.Count == 10)
-            //    {
-
-            //        File.WriteAllText("wwwroot/config/MessageStatusObj.txt", JsonHelper.SerializeObject(StatusList));
-            //        File.WriteAllText("wwwroot/config/MessageQueueObj.txt", JsonHelper.SerializeObject(QueueList));
-            //    }//预留赋值的方法
-            //}
+         
         }
         #endregion
         #region 全局变量
@@ -93,15 +75,16 @@ namespace CoreSignalRR.signalr
         /// <summary>
         /// 车道信息列表。
         /// </summary>
-        //public static List<Pf_Message_Obj> StatusList = new List<Pf_Message_Obj>();
+       
 
-        //public static List<object> lanes = new List<object>();
+        public static ConcurrentDictionary<int, Pf_Message_lane_Object> laneList = new ConcurrentDictionary<int, Pf_Message_lane_Object>();
 
-        public static List<Pf_Message_lane_Object> laneList = new List<Pf_Message_lane_Object>();
         /// <summary>
         /// 作业信息列表
         /// </summary>
-        public static List<Pf_Messge_Queue_Object> QueueList = new List<Pf_Messge_Queue_Object>();
+        //public static List<Pf_Messge_Queue_Object> QueueList = new List<Pf_Messge_Queue_Object>();
+
+        public static ConcurrentDictionary<DateTime, Pf_Messge_Queue_Object> QueueList = new ConcurrentDictionary<DateTime, Pf_Messge_Queue_Object>();
 
         /// <summary>
         /// 会话信息列表。
@@ -120,7 +103,7 @@ namespace CoreSignalRR.signalr
                 List<object> lanes = new List<object>();
                 foreach (var item in laneList)
                 {
-                    lanes.Add(item.lane);
+                    lanes.Add(item.Value.lane);
 
                 }
 
@@ -129,7 +112,7 @@ namespace CoreSignalRR.signalr
                 {
                     foreach (var item in QueueList)
                     {
-                        queues.Add(item.queue);
+                        queues.Add(item.Value.queue);
                     }
                     queues.Reverse();
                 }
@@ -209,7 +192,7 @@ namespace CoreSignalRR.signalr
                             if (sessionObjectList.Count(x => x.ClientName == laneCode) > 0)
                             {
 
-                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveQueue(JsonHelper.SerializeObject(obj));
+                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveQueue(JsonHelper.SerializeObject(queuecontent));
 
                                 InsertLog(queuecontent.lane_code, JsonHelper.SerializeObject(obj));
                             }
@@ -273,10 +256,11 @@ namespace CoreSignalRR.signalr
 
 
 
-                            if (laneList.Count(x => x.lane_code == lanecontent.lane_code) > 0)
+                            if (laneList.Count(x => x.Value.lane_code == lanecontent.lane_code) > 0)
                             {
-                                laneList[laneList.FindIndex(x => x.lane_code == lanecontent.lane_code)] = lanecontent;//更新content
+                             
 
+                                laneList[laneList.First(x => x.Value.lane_code == laneCode).Key] = lanecontent;
 
 
                             }
@@ -289,25 +273,29 @@ namespace CoreSignalRR.signalr
                             switch (queuecontent.action)
                             {
                                 case "create":
-                                    if (QueueList.Count(x => x.queue_id == queuecontent.queue_id) == 0)//没有这个元素时才能创建
+                                    if (QueueList.Count(x => x.Value.queue_id == queuecontent.queue_id) == 0)//没有这个元素时才能创建
                                     {
-                                        QueueList.Add(queuecontent);
+
+                                        QueueList.TryAdd(Convert.ToDateTime(queuecontent.create_time),queuecontent);
                                     }
                                     break;
                                 case "update":
-                                    if (QueueList.Count(x => x.queue_id == queuecontent.queue_id) > 0)
+                                    if (QueueList.Count(x => x.Value.queue_id == queuecontent.queue_id) > 0)
                                     {
-                                        QueueList[QueueList.FindIndex(x => x.queue_id == queuecontent.queue_id)] = queuecontent;//更新content
+                                      
+                                        QueueList[QueueList.First(x => x.Value.queue_id == queuecontent.queue_id).Key] = queuecontent;
                                     }
                                     break;
                                 case "delete":
-                                    if (QueueList.Count(x => x.queue_id == queuecontent.queue_id) > 0)
+                                    if (QueueList.Count(x => x.Value.queue_id == queuecontent.queue_id) > 0)
                                     {
-                                        QueueList.Remove(QueueList[QueueList.FindIndex(x => x.queue_id == queuecontent.queue_id)]);//移除一票作业
+                                       
+                                        Pf_Messge_Queue_Object outobj = new Pf_Messge_Queue_Object();
+                                        QueueList.TryRemove(QueueList.FirstOrDefault(x => x.Value.queue_id == queuecontent.queue_id).Key,out outobj);
                                     }
                                     break;
                             }
-
+                            QueueList.OrderBy(x => x.Key <= DateTime.Now);
 
                         }
                         break;
@@ -378,14 +366,9 @@ namespace CoreSignalRR.signalr
                 {
                     case "Client":
 
-                        if (laneList.Count(x => x.lane_code == Context.QueryString["Name"]) > 0)
+                        if (laneList.Count(x => x.Value.lane_code == Context.QueryString["Name"]) > 0)
                         {
-
-                            var temp = laneList.FirstOrDefault(x => x.lane_code == Context.QueryString["Name"]);
-
-
-
-
+                            var temp = laneList.FirstOrDefault(x => x.Value.lane_code == Context.QueryString["Name"]);
                             //数据更新
                         }
 
@@ -417,14 +400,18 @@ namespace CoreSignalRR.signalr
                             if (i <= 5)
                             {
                                 laneobj.lane = new Lane { lane_code = "CN-XIAMEN-SXCT-000" + i, update_time = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}", lane_name = "GI0" + i, lane_type = "重车进闸", direction = "In" };
-                                laneList.Add(laneobj);
+                                laneList.TryAdd(i, laneobj);
+
+
                             }
                             else
                             {
                                 laneobj.lane = new Lane { lane_code = "CN-XIAMEN-SXCT-000" + i, update_time = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss}", lane_name = "GO0" + (i - 5), lane_type = "重车出闸", direction = "Out" };
-                                laneList.Add(laneobj);
+                                laneList.TryAdd(i, laneobj);
                             }
+                            laneList.OrderBy(x => x.Key <= 10);
                         }
+
                     }
                 }
 
@@ -452,12 +439,12 @@ namespace CoreSignalRR.signalr
                 if (sessionObjectList.Count(x => x.ConnectionID == Context.ConnectionId) > 0)
                 {
                     var thesession = sessionObjectList[sessionObjectList.FindIndex(x => x.ConnectionID == Context.ConnectionId)];
-                    var temp = laneList.FirstOrDefault(x => x.lane_code == thesession.ClientName);
-                    if (temp != null)
+                    var temp = laneList.FirstOrDefault(x => x.Value.lane_code == thesession.ClientName);
+                    if (temp.Value != null)
                     {
                         //temp.lane = null;//离线清空
 
-                        InsertLog(temp.lane_code, "与服务器断开连接");
+                        InsertLog(temp.Value.lane_code, "与服务器断开连接");
                     }
                 }
 
