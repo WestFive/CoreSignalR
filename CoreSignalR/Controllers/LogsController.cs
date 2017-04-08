@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Data.Common;
 using System.Net;
+using Data.Model;
 
 namespace CoreSignalRR.Controllers
 {
@@ -36,14 +37,20 @@ namespace CoreSignalRR.Controllers
             }
         }
 
-        [HttpGet("{days}")]
-        public object Get(int days)
+        [HttpPost("{days}")]
+        public object Post([FromForm]LogResponse res)
         {
             try
             {
+                //if (time==null)
+                //{
+                //    //time =  DateTime.Now;
+                //}
+                
+                DateTime datetime = Convert.ToDateTime(res.time);
                 Loger.FilePath = "wwwroot/Log";
-                List<string> list = Loger.ReadFromLogTxt(DateTime.Now, days);
-                var value = JsonHelper.SerializeObject(Loger.ReadFromLogTxt(DateTime.Now, days));
+                List<string> list = Loger.ReadFromLogTxt(datetime, res.days);
+                var value = JsonHelper.SerializeObject(Loger.ReadFromLogTxt(datetime, res.days));
                 if (list.Count == 0)
                 {
                     return GetJson(HttpStatusCode.NotFound, value);
@@ -60,7 +67,7 @@ namespace CoreSignalRR.Controllers
         }
 
 
-        [HttpOptions]
+        [NonAction]
         public object GetJson(HttpStatusCode code, object obj)
         {
 
