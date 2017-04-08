@@ -181,9 +181,9 @@ namespace CoreSignalRR.signalr
                         {
                             Pf_Message_lane_Object lanecontent = JsonHelper.DeserializeJsonToObject<Pf_Message_lane_Object>(JsonHelper.SerializeObject(obj.message_content));
 
-                            if (sessionObjectList.Count(x => x.ClientName == lanecontent.lane_code) > 0)
+                            if (sessionObjectList.Count(x => x.ClientName == laneCode) > 0)
                             {
-                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == lanecontent.lane_code)].ConnectionID).reciveLane(JsonHelper.SerializeObject(lanecontent));
+                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveLane(JsonHelper.SerializeObject(lanecontent));
 
                                 InsertLog(lanecontent.lane_code, JsonHelper.SerializeObject(lanecontent));
                             }
@@ -193,9 +193,9 @@ namespace CoreSignalRR.signalr
                     case "directive":
                         pf_Message_Directive directivecontent = JsonHelper.DeserializeJsonToObject<pf_Message_Directive>(JsonHelper.SerializeObject(obj.message_content));
 
-                        if (sessionObjectList.Count(x => x.ClientName == directivecontent.lane_code) > 0)
+                        if (sessionObjectList.Count(x => x.ClientName == laneCode) > 0)
                         {
-                            Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == directivecontent.lane_code)].ConnectionID).reciveDirective(JsonHelper.SerializeObject(directivecontent));
+                            Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveDirective(JsonHelper.SerializeObject(directivecontent));
 
                             InsertLog(directivecontent.lane_code, JsonHelper.SerializeObject(directivecontent));
                         }
@@ -206,10 +206,10 @@ namespace CoreSignalRR.signalr
                         {
                             Pf_Messge_Queue_Object queuecontent = JsonHelper.DeserializeJsonToObject<Pf_Messge_Queue_Object>(JsonHelper.SerializeObject(obj.message_content));
 
-                            if (sessionObjectList.Count(x => x.ClientName == queuecontent.lane_code) > 0)
+                            if (sessionObjectList.Count(x => x.ClientName == laneCode) > 0)
                             {
 
-                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == queuecontent.lane_code)].ConnectionID).reciveQueue(JsonHelper.SerializeObject(obj));
+                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveQueue(JsonHelper.SerializeObject(obj));
 
                                 InsertLog(queuecontent.lane_code, JsonHelper.SerializeObject(obj));
                             }
