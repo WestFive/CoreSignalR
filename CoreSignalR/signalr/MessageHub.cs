@@ -166,9 +166,9 @@ namespace CoreSignalRR.signalr
 
                             if (sessionObjectList.Count(x => x.ClientName == laneCode) > 0)
                             {
-                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveLane(JsonHelper.SerializeObject(lanecontent));
+                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveLane(JsonHelper.SerializeObject(obj));
 
-                                InsertLog(lanecontent.lane_code, JsonHelper.SerializeObject(lanecontent));
+                                InsertLog(lanecontent.lane_code, JsonHelper.SerializeObject(obj));
                             }
 
                         }
@@ -178,9 +178,9 @@ namespace CoreSignalRR.signalr
 
                         if (sessionObjectList.Count(x => x.ClientName == laneCode) > 0)
                         {
-                            Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveDirective(JsonHelper.SerializeObject(directivecontent));
+                            Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveDirective(JsonHelper.SerializeObject(obj));
 
-                            InsertLog(directivecontent.lane_code, JsonHelper.SerializeObject(directivecontent));
+                            InsertLog(directivecontent.lane_code, JsonHelper.SerializeObject(obj));
                         }
 
                         break;
@@ -192,7 +192,7 @@ namespace CoreSignalRR.signalr
                             if (sessionObjectList.Count(x => x.ClientName == laneCode) > 0)
                             {
 
-                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveQueue(JsonHelper.SerializeObject(queuecontent));
+                                Clients.Client(sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == laneCode)].ConnectionID).reciveQueue(JsonHelper.SerializeObject(obj));
 
                                 InsertLog(queuecontent.lane_code, JsonHelper.SerializeObject(obj));
                             }
