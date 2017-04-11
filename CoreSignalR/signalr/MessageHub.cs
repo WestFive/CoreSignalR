@@ -342,24 +342,25 @@ namespace CoreSignalRR.signalr
                             var temp = laneList.FirstOrDefault(x => x.Value.lane_code == Context.QueryString["Name"]);
                             //数据更新
                         }
-
+                        else
+                        {
+                            AddToSession();//加入车道缓存。
+                        }
                         break;
                     case "LaneWatch":
-
+                        AddToSession();//加入车道缓存。
                         break;
                     case "Broswer":
-
+                        AddToSession();//加入车道缓存。
                         break;
                     case "WorkWatch":
-
+                        AddToSession();//加入车道缓存。
                         break;
                     default:
-
+                        AddToSession();//加入车道缓存。
                         break;
-
-
                 }
-                AddToSession();//加入车道缓存。
+              
 
                 if (SetValue)//调试用赋值方法
                 {

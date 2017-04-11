@@ -90,6 +90,7 @@ namespace CoreSignalRR.SignalR
             loggerFactory.AddDebug();//添加LOG支持
             loggerFactory.AddNLog(); //本地的LOG记录。
             app.AddNLogWeb();
+             
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
