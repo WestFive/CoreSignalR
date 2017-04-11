@@ -8,7 +8,7 @@ namespace Data.Common
 { /// <summary>
   /// 日志
   /// </summary>
-    public static  class Loger
+    public static class Loger
     {
         /// <summary>
         /// 路径
@@ -22,22 +22,19 @@ namespace Data.Common
             get { return filePath; }
             set { filePath = value; }
         }
-       
-
-
         /// <summary>
-        /// 读取日志。
+        /// 读取指定的日志到内存缓存中
         /// </summary>
         /// <param name="time"></param>
         /// <param name="Days"></param>
         /// <returns></returns>
-        public static List<string> ReadFromLogTxt(DateTime time,int Days)
+        public static List<string> ReadFromLogTxt(DateTime time, int Days)
         {
             List<string> days = new List<string>();
             List<string> logs = new List<string>();
             try
             {
-                for (int i = 0; i < Days+1; i++)
+                for (int i = 0; i < Days + 1; i++)
                 {
                     days.Add(((Convert.ToInt32(time.ToString("yyyyMMdd")) - i).ToString()));
                 }
@@ -47,27 +44,19 @@ namespace Data.Common
                     {
                         if (File.Exists(FilePath + @"\LOG\" + item + ".txt"))
                         {
-                            //using (FileStream fs = new FileStream(FilePath + @"\LOG\" + item + ".txt", FileMode.Open, FileAccess.Read))
-                            //{
-                            //    StreamReader sr = new StreamReader(fs);
-
-                            //}
                             string[] value = File.ReadAllLines(FilePath + @"\LOG\" + item + ".txt");
                             logs.AddRange(value);
                         }
-
                     }
                     catch (Exception ex)
                     {
-                        logs.Add(item + ":没有相关日志记录"+ex.ToString());
+                        logs.Add(item + ":没有相关日志记录" + ex.ToString());
                         continue;
                     }
-
                 }
 
-                
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 AddErrorText("读取日志", ex);
                 logs.Add(ex.ToString());
@@ -97,22 +86,13 @@ namespace Data.Common
                 }
                 else //存在则追加
                 {
-                    //using (
-                    //FileStream fs = new FileStream(FilePath + @"\LOG\" + DateTime.Now.Date.ToString("yyyyMMdd") + ".txt", FileMode.Open, FileAccess.Write))
-                    //{
-                    //    //StreamWriter sr = new StreamWriter(fs);
-                    //    //sr.BaseStream.Seek(0, SeekOrigin.End);
-                    //    //sr.WriteLine(DateTime.Now.ToString() + "  " + message + "\r\n");//开始写入值
-                    //    File.AppendAllText(FilePath + @"\LOG\" + DateTime.Now.Date.ToString("yyyyMMdd") + ".txt", message);
-                    //    return "追加到日志成功";
-                    //}
                     File.AppendAllText(FilePath + @"\LOG\" + DateTime.Now.Date.ToString("yyyyMMdd") + ".txt", message + "\r\n");
                     return "成功";
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return "追加到日志失败"+ex.ToString();
+                return "追加到日志失败" + ex.ToString();
             }
             // return "追加到日志成功";
         }
@@ -145,9 +125,8 @@ namespace Data.Common
                     {
                         StreamWriter sw = new StreamWriter(fs1);
                         sw.WriteLine(DateTime.Now.ToString() + "  " + message + "\r\n");//开始写入值
-
                     }
-                    File.AppendAllText(FilePath + @"\ERRORLOG\" + DateTime.Now.Date.ToString("yyyyMMdd") + ".txt", message+"\r\n");
+                    File.AppendAllText(FilePath + @"\ERRORLOG\" + DateTime.Now.Date.ToString("yyyyMMdd") + ".txt", message + "\r\n");
 
                     return "创建日志成功";
                 }
@@ -158,11 +137,9 @@ namespace Data.Common
                     {
                         StreamWriter sr = new StreamWriter(fs);
                         sr.BaseStream.Seek(0, SeekOrigin.End);
-                        sr.WriteLine(DateTime.Now.ToString() + "  " + message+"\r\n");//开始写入值
-
-                        
+                        sr.WriteLine(DateTime.Now.ToString() + "  " + message + "\r\n");//开始写入值                   
                     }
-                    File.AppendAllText(FilePath + @"\ERRORLOG\" + DateTime.Now.Date.ToString("yyyyMMdd") + ".txt", message+"\r\n");
+                    File.AppendAllText(FilePath + @"\ERRORLOG\" + DateTime.Now.Date.ToString("yyyyMMdd") + ".txt", message + "\r\n");
                     return "追加到日志成功";
                 }
             }
@@ -199,8 +176,6 @@ namespace Data.Common
                 return;
             }
         }
-
-
     }
 }
 
