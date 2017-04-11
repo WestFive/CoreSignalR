@@ -13,39 +13,39 @@ using System.Threading.Tasks;
 
 namespace CoreSignalRR.signalr
 {
-        #region 调用说明
-                /*
-                 * 调用说明：
-                 * 车道监控： 获取车道状态列表：hub.On("GetStatusList",(data)=>{  处理data });
-                 *            获取在线会话列表：Hub.On("GetSessionList",(data)=>{处理data});
-                 *            修改车道 hub.Invoke("ChangeStatus","车道ID","修改后的JSON内容");
-                 *            刷新 hub.Invoke("F5");
-                 *            角色注册：创建connection连接的时候加入QS键值
-                 *            1. Dictionary<string, string> dic = new Dictionary<string, string>();
-                 *            2. dic.Add("Type", "Watch");
-                 *            3. connection = new HubConnection(服务地址,dic);
-                 *            
-                 * 车道代理:  监听获取最新状态（他人更新） hub.On("reciveStatus",(data)=>{  处理DATA });
-                 *            监听获取指令                 hub.On("reciveAction",(data)=>{ 处理DATA});
-                 *            修改车道 hub.Invoke("ChangeStatus","车道ID"，"修改后的JSON内容");
-                 *            角色注册：创建connection连接的时候加入QS键值
-                 *            1. Dictionary<string, string> dic = new Dictionary<string, string>();
-                 *            2. dic.Add("Type", "Client");
-                 *            3. connection = new HubConnection(服务地址,dic);
-                 *                     
-                 * Web客户端：获取在线会话列表： proxy.client.GetSessionList = function(datas){ 处理datas}; 
-                 *            获取车道状态列表： proxy.client.GetStatusList = function(datas){处理datas};
-                 *                            或者：Get请求  url/api/lane_cache 
-                 *            修改车道：         Post请求 url/api/lane_cache/{lane_name} //qs参数为: 修改后车道状态的JSON表示
-                 *            角色注册： 在 $.connection.messageHub 之前：
-                 *                       $.connection.hub.qs ="Type ={类型}";
-                 *                       例如 注册 Client 
-                 *                       $.connection.hub.qs="Type = Client";
-                 *                       注册Watch
-                 *                       $.connection.hub.qs = "Type = Watch";
-                 *                       默认不注册。
-                 *            
-                 */
+    #region 调用说明
+    /*
+     * 调用说明：
+     * 车道监控： 获取车道状态列表：hub.On("GetStatusList",(data)=>{  处理data });
+     *            获取在线会话列表：Hub.On("GetSessionList",(data)=>{处理data});
+     *            修改车道 hub.Invoke("ChangeStatus","车道ID","修改后的JSON内容");
+     *            刷新 hub.Invoke("F5");
+     *            角色注册：创建connection连接的时候加入QS键值
+     *            1. Dictionary<string, string> dic = new Dictionary<string, string>();
+     *            2. dic.Add("Type", "Watch");
+     *            3. connection = new HubConnection(服务地址,dic);
+     *            
+     * 车道代理:  监听获取最新状态（他人更新） hub.On("reciveStatus",(data)=>{  处理DATA });
+     *            监听获取指令                 hub.On("reciveAction",(data)=>{ 处理DATA});
+     *            修改车道 hub.Invoke("ChangeStatus","车道ID"，"修改后的JSON内容");
+     *            角色注册：创建connection连接的时候加入QS键值
+     *            1. Dictionary<string, string> dic = new Dictionary<string, string>();
+     *            2. dic.Add("Type", "Client");
+     *            3. connection = new HubConnection(服务地址,dic);
+     *                     
+     * Web客户端：获取在线会话列表： proxy.client.GetSessionList = function(datas){ 处理datas}; 
+     *            获取车道状态列表： proxy.client.GetStatusList = function(datas){处理datas};
+     *                            或者：Get请求  url/api/lane_cache 
+     *            修改车道：         Post请求 url/api/lane_cache/{lane_name} //qs参数为: 修改后车道状态的JSON表示
+     *            角色注册： 在 $.connection.messageHub 之前：
+     *                       $.connection.hub.qs ="Type ={类型}";
+     *                       例如 注册 Client 
+     *                       $.connection.hub.qs="Type = Client";
+     *                       注册Watch
+     *                       $.connection.hub.qs = "Type = Watch";
+     *                       默认不注册。
+     *            
+     */
     #endregion
     public class MessageHub : Hub
     {
@@ -62,7 +62,7 @@ namespace CoreSignalRR.signalr
 
 
 
-         
+
         }
         #endregion
         #region 全局变量
@@ -75,7 +75,7 @@ namespace CoreSignalRR.signalr
         /// <summary>
         /// 车道信息列表。
         /// </summary>
-       
+
 
         public static ConcurrentDictionary<int, Pf_Message_lane_Object> laneList = new ConcurrentDictionary<int, Pf_Message_lane_Object>();
 
@@ -152,6 +152,7 @@ namespace CoreSignalRR.signalr
         {
             try
             {
+                _logger.LogWarning("发送消息:" + laneCode + JsonMessage);
                 Pf_Message_Obj<object> obj = JsonHelper.DeserializeJsonToObject<Pf_Message_Obj<object>>(JsonMessage);
                 switch (obj.message_type)
                 {
@@ -213,9 +214,6 @@ namespace CoreSignalRR.signalr
         }
 
 
-
-
-
         private void InsertLog(string User, string Value)
         {
             Loger.AddLogText("Time:" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") + "User:" + User + "Message:" + JsonHelper.SerializeObject(Value));
@@ -230,9 +228,12 @@ namespace CoreSignalRR.signalr
         [HubMethodName("Change")]
         public void Change(string laneCode, string JsonMessage)
         {
+            _logger.LogWarning("进入了修改");
             try
             {
                 Pf_Message_Obj<object> obj = JsonHelper.DeserializeJsonToObject<Pf_Message_Obj<object>>(JsonMessage);
+                _logger.LogWarning("第一步成功，下一步做判断。");
+                _logger.LogWarning("数据正常吗?" + laneCode + "json" + JsonMessage);
                 switch (obj.message_type)
                 {
                     case "lane":
@@ -240,9 +241,10 @@ namespace CoreSignalRR.signalr
                         {
                             Pf_Message_lane_Object lanecontent = JsonHelper.DeserializeJsonToObject<Pf_Message_lane_Object>(JsonHelper.SerializeObject(obj.message_content));
                             if (laneList.Count(x => x.Value.lane_code == lanecontent.lane_code) > 0)
-                            {                           
+                            {
                                 laneList[laneList.First(x => x.Value.lane_code == laneCode).Key] = lanecontent;
                             }
+
                         }
                         break;
                     case "queue":
@@ -251,23 +253,24 @@ namespace CoreSignalRR.signalr
                             Pf_Messge_Queue_Object queuecontent = JsonHelper.DeserializeJsonToObject<Pf_Messge_Queue_Object>(JsonHelper.SerializeObject(obj.message_content));
                             switch (queuecontent.action)
                             {
+
                                 case "create":
                                     if (QueueList.Count(x => x.Value.queue_id == queuecontent.queue_id) == 0)//没有这个元素时才能创建
                                     {
-                                        QueueList.TryAdd(Convert.ToDateTime(queuecontent.create_time),queuecontent);
+                                        QueueList.TryAdd(Convert.ToDateTime(queuecontent.create_time), queuecontent);
                                     }
                                     break;
                                 case "update":
                                     if (QueueList.Count(x => x.Value.queue_id == queuecontent.queue_id) > 0)
-                                    {                          
+                                    {
                                         QueueList[QueueList.First(x => x.Value.queue_id == queuecontent.queue_id).Key] = queuecontent;
                                     }
                                     break;
                                 case "delete":
                                     if (QueueList.Count(x => x.Value.queue_id == queuecontent.queue_id) > 0)
-                                    {                                     
+                                    {
                                         Pf_Messge_Queue_Object outobj = new Pf_Messge_Queue_Object();
-                                        QueueList.TryRemove(QueueList.FirstOrDefault(x => x.Value.queue_id == queuecontent.queue_id).Key,out outobj);
+                                        QueueList.TryRemove(QueueList.FirstOrDefault(x => x.Value.queue_id == queuecontent.queue_id).Key, out outobj);
                                     }
                                     break;
                             }
@@ -278,6 +281,7 @@ namespace CoreSignalRR.signalr
             }
             catch (Exception ex)
             {
+                _logger.LogWarning("报错了" + ex.ToString());
                 ReCode = "状态刷新/修改失败";
                 GetRe();
                 Loger.AddErrorText("更新状态失败", ex);
@@ -319,9 +323,10 @@ namespace CoreSignalRR.signalr
                 Port = Context.Request.HttpContext.Connection.RemotePort.ToString(),
                 ClientName = Context.QueryString["Name"],
                 ClientType = Context.QueryString["Type"],
+
                 ConnectionTime = DateTime.Now.ToString()
             });//添加会话对象
-            _logger.LogWarning(DateTime.Now.ToString() + "{0}连接了", Context.QueryString["Name"]);
+            _logger.LogWarning(DateTime.Now.ToString() + "{0}{1}连接了", Context.QueryString["Type"], Context.QueryString["Name"]);
             Loger.AddLogText(DateTime.Now.ToString() + Context.QueryString["Type"] + ":" + Context.QueryString["ID"] + "连接了");
         }
         #endregion
@@ -336,31 +341,31 @@ namespace CoreSignalRR.signalr
                 switch (Context.QueryString["Type"])
                 {
                     case "Client":
-
-                        if (laneList.Count(x => x.Value.lane_code == Context.QueryString["Name"]) > 0)
+                        _logger.LogWarning("连接的对象是客户端");
+                        if (sessionObjectList.Count(x => x.ClientName == Context.QueryString["Name"]) > 0)
                         {
-                            var temp = laneList.FirstOrDefault(x => x.Value.lane_code == Context.QueryString["Name"]);
-                            //数据更新
-                        }
-                        else
-                        {
-                            AddToSession();//加入车道缓存。
+                            _logger.LogWarning("更新客户端" + Context.QueryString["Name"]);
+                            sessionObjectList[sessionObjectList.FindIndex(x => x.ClientName == Context.QueryString["Name"])].ConnectionID = Context.ConnectionId;//替换连接ID
                         }
                         break;
                     case "LaneWatch":
+                        _logger.LogWarning("连接的对象是监控端");
                         AddToSession();//加入车道缓存。
                         break;
                     case "Broswer":
+                        _logger.LogWarning("连接的对象是浏览器");
                         AddToSession();//加入车道缓存。
                         break;
                     case "WorkWatch":
+                        _logger.LogWarning("连接的对象是观察者");
                         AddToSession();//加入车道缓存。
                         break;
                     default:
+                        _logger.LogWarning("连接的对象是匿名者");
                         AddToSession();//加入车道缓存。
                         break;
                 }
-              
+
 
                 if (SetValue)//调试用赋值方法
                 {

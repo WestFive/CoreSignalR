@@ -19,6 +19,7 @@ namespace CoreSignalRR
                 .UseStartup<Startup>()
                 .UseApplicationInsights()
                 .UseKestrel().UseUrls("http://*:5000")//添加IP地址访问监听。
+                                                      //.UseKestrel().us
                 .Build();
 
             host.Run();
